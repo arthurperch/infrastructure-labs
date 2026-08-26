@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Infrastructure Production Labs — Arthur Perchatkin</title>
+  <meta name="description" content="GPU validation, serverless gating, and Terraform cloud infrastructure labs — built to prove production automation skills." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #050608;
+      --ink: #f2f4f8;
+      --mute: #a0a8b8;
+      --line: rgba(255,255,255,.12);
+      --cyan: #5eead4;
+      --blue: #7dd3fc;
+      --font: "IBM Plex Sans", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: var(--font);
+      color: var(--ink);
+      background: var(--bg);
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    .bg { position: fixed; inset: 0; z-index: 0; background: #050608; }
+    .bg-slide {
+      position: absolute; inset: -2%;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      filter: saturate(.75) contrast(1.04) brightness(.38);
+      transition: opacity 2.8s ease-in-out;
+      will-change: opacity, transform;
+      animation: drift 36s ease-in-out infinite alternate;
+    }
+    .bg-slide.on { opacity: 1; }
+    @keyframes drift {
+      from { transform: scale(1.04) translate3d(0, 0, 0); }
+      to   { transform: scale(1.1) translate3d(-1.2%, .8%, 0); }
+    }
+    .bg-veil {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(1000px 560px at 12% 8%, rgba(94,234,212,.09), transparent 58%),
+        radial-gradient(900px 520px at 92% 18%, rgba(125,211,252,.07), transparent 52%),
+        linear-gradient(180deg, rgba(5,6,8,.25) 0%, rgba(5,6,8,.55) 40%, rgba(5,6,8,.88) 100%);
+      pointer-events: none;
+    }
+    canvas#net {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      opacity: .42; pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .page {
+      position: relative; z-index: 1;
+      width: min(1040px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 2.25rem 0 4.5rem;
+    }
+
+    .top {
+      display: flex; flex-wrap: wrap; gap: .75rem 1rem;
+      align-items: center; justify-content: flex-end;
+      margin-bottom: 1.1rem;
+    }
+    .pill {
+      font-family: var(--mono); font-size: .72rem;
+      padding: .42rem .75rem; border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.28);
+      color: var(--mute);
+      backdrop-filter: blur(10px);
+    }
+    .pill:hover { color: var(--ink); border-color: rgba(125,211,252,.35); }
+
+    .hero {
+      position: relative;
+      padding: 1.75rem 1.6rem 1.55rem;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(8,10,14,.42);
+      backdrop-filter: blur(16px) saturate(1.05);
+      box-shadow: 0 24px 70px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.05);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,.03) 50%, transparent 70%);
+      transform: translateX(-120%);
+      animation: sheen 9s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes sheen {
+      0%, 55% { transform: translateX(-120%); }
+      85%, 100% { transform: translateX(120%); }
+    }
+    .who {
+      font-family: var(--mono);
+      font-size: .78rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin: 0 0 .55rem;
+    }
+    .hero h1 {
+      margin: 0 0 .7rem;
+      font-size: clamp(2rem, 4.2vw, 2.85rem);
+      line-height: 1.08;
+      letter-spacing: -.03em;
+      font-weight: 700;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, var(--cyan), var(--blue));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .sub {
+      margin: 0;
+      max-width: 68ch;
+      color: #d0d6e4;
+      font-size: 1.06rem;
+      line-height: 1.6;
+      font-weight: 400;
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: .72rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--mute);
+      margin: 0 0 .85rem;
+      display: flex; align-items: center; gap: .65rem;
+    }
+    .section-label::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(255,255,255,.12), transparent);
+    }
+
+    .labs { display: grid; gap: .85rem; }
+    .lab {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1.1rem 1.4rem;
+      align-items: center;
+      padding: 1.25rem 1.3rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.13);
+      background: rgba(6,8,12,.34);
+      backdrop-filter: blur(14px) saturate(1.08);
+      -webkit-backdrop-filter: blur(14px) saturate(1.08);
+      box-shadow: 0 12px 40px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.04);
+      transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+      animation: rise .5s ease both;
+    }
+    .lab:nth-child(1){animation-delay:.03s} .lab:nth-child(2){animation-delay:.06s}
+    .lab:nth-child(3){animation-delay:.09s} .lab:nth-child(4){animation-delay:.12s}
+    .lab:nth-child(5){animation-delay:.15s} .lab:nth-child(6){animation-delay:.18s}
+    .lab:nth-child(7){animation-delay:.21s} .lab:nth-child(8){animation-delay:.24s}
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .lab:hover {
+      transform: translateY(-2px);
+      border-color: rgba(125,211,252,.4);
+      background: rgba(8,11,16,.48);
+      box-shadow: 0 18px 50px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .lab h2 {
+      margin: 0 0 .45rem;
+      font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+      font-weight: 700;
+      letter-spacing: -.025em;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+    .lab p {
+      margin: 0 0 .7rem;
+      color: var(--mute);
+      font-size: .95rem;
+      line-height: 1.5;
+      max-width: 62ch;
+    }
+    .tags { display: flex; flex-wrap: wrap; gap: .38rem; }
+    .tag {
+      font-family: var(--mono); font-size: .68rem;
+      padding: .2rem .48rem; border-radius: 6px;
+      color: #d2d9e8;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(0,0,0,.22);
+    }
+
+    .gh-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .65rem;
+      min-width: 148px;
+      min-height: 52px;
+      padding: .85rem 1.15rem;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.38);
+      backdrop-filter: blur(10px);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: .82rem;
+      font-weight: 600;
+      letter-spacing: .02em;
+      transition: background .15s ease, border-color .15s ease, transform .15s ease;
+      white-space: nowrap;
+    }
+    .gh-btn img {
+      width: 26px;
+      height: 26px;
+      display: block;
+      opacity: .95;
+    }
+    .lab:hover .gh-btn {
+      background: rgba(255,255,255,.1);
+      border-color: rgba(255,255,255,.28);
+      transform: scale(1.02);
+    }
+
+    footer {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      color: var(--mute);
+      font-size: .88rem;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 720px) {
+      .lab { grid-template-columns: 1fr; }
+      .gh-btn { width: 100%; }
+      .top { justify-content: flex-start; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .bg-slide, .lab, .hero::after { animation: none !important; }
+      .bg-slide { transform: none; transition-duration: .01ms; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg" aria-hidden="true">
+    <div class="bg-slide on" id="s0"></div>
+    <div class="bg-slide" id="s1"></div>
+    <canvas id="net"></canvas>
+    <div class="bg-veil"></div>
+  </div>
+
+  <div class="page">
+    <div class="top">
+      <a class="pill" href="https://github.com/arthurperch" target="_blank" rel="noopener">github/arthurperch</a>
+    </div>
+
+    <header class="hero">
+      <p class="who">Arthur Perchatkin · Cloud Systems Administrator</p>
+      <h1>Infrastructure Production Labs</h1>
+      <p class="sub">
+        Hands-on labs proving the infrastructure production workflow — validating GPU hardware with NVML and burn tests,
+        gating nodes through a serverless control plane, and provisioning it all with Terraform.
+        Each card opens the GitHub repo with the write-up, code, and verify scripts.
+      </p>
+    </header>
+
+    <div class="section-label">Labs</div>
+    <div class="labs" id="labs"></div>
+
+    <footer>
+      Arthur Perchatkin · Infrastructure Production Labs · GPU validation, serverless gating, Terraform, and AWS automation.
+    </footer>
+  </div>
+
+  <!-- inline GitHub mark (white, transparent bg) as data URI so no extra asset fail -->
+  <script>
+    const GH_ICON = "data:image/svg+xml," + encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 98 96"><path fill="#fff" fill-rule="evenodd" d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z"/></svg>'
+    );
+
+    const photos = [
+      "assets/web/datacenter.jpg",
+      "assets/web/gpu-card.jpg",
+      "assets/web/fiber.jpg",
+      "assets/web/terminal.jpg"
+    ];
+
+    const labs = [
+      {
+        title: "GPU Validation Fleet",
+        blurb: "NVML health checks, CUDA burn tests, network validation, and Ansible orchestration for bare-metal GPU nodes — with report submission to the onboarding gate.",
+        tags: ["NVML", "CUDA", "Ansible", "Python", "GPU"],
+        url: "https://github.com/arthurperch/gpu-validation"
+      },
+      {
+        title: "GPU Onboarding Gate",
+        blurb: "Serverless gate — Lambda + API Gateway + DynamoDB — that ingests validator reports and decides PROVISION, HOLD, or RMA per node.",
+        tags: ["Lambda", "API Gateway", "DynamoDB", "Terraform", "Serverless"],
+        url: "https://github.com/arthurperch/cloud"
+      },
+      {
+        title: "Cloud Infrastructure Lab",
+        blurb: "Terraform + LocalStack: S3, DynamoDB, Lambda, and IAM provisioned as code with verify scripts and a clean teardown.",
+        tags: ["Terraform", "LocalStack", "AWS", "IaC", "S3", "DynamoDB"],
+        url: "https://github.com/arthurperch/cloud"
+      },
+      {
+        title: "AWS Security Auditor",
+        blurb: "Python/boto3 automated compliance checks across IAM, EC2, S3, and security groups with structured report output.",
+        tags: ["Python", "boto3", "AWS", "IAM", "Security"],
+        url: "https://github.com/arthurperch/aws-security-auditor"
+      },
+      {
+        title: "flask-mcp-server",
+        blurb: "MCP server bridging AI assistants to Flask and AWS — automation and API integration from natural language.",
+        tags: ["MCP", "Python", "Flask", "AWS", "Automation"],
+        url: "https://github.com/arthurperch/flask-mcp-server"
+      }
+    ];
+
+    document.getElementById("labs").innerHTML = labs.map(l => `
+      <article class="lab">
+        <div>
+          <h2>${l.title}</h2>
+          <p>${l.blurb}</p>
+          <div class="tags">${l.tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>
+        </div>
+        <a class="gh-btn" href="${l.url}" target="_blank" rel="noopener" aria-label="Open ${l.title} on GitHub">
+          <img src="${GH_ICON}" alt="" width="26" height="26" />
+          GitHub
+        </a>
+      </article>
+    `).join("");
+
+    /* slow crossfade background */
+    const s0 = document.getElementById("s0");
+    const s1 = document.getElementById("s1");
+    let cur = 0, front = 0;
+    const layers = [s0, s1];
+    function paint(el, i) { el.style.backgroundImage = `url("${photos[i]}")`; }
+    paint(s0, 0); paint(s1, 1);
+
+    function next() {
+      const i = (cur + 1) % photos.length;
+      const show = layers[1 - front];
+      const hide = layers[front];
+      paint(show, i);
+      show.classList.add("on");
+      hide.classList.remove("on");
+      front = 1 - front;
+      cur = i;
+    }
+    setInterval(next, 7000);
+
+    /* network mesh — quieter */
+    const c = document.getElementById("net");
+    const ctx = c.getContext("2d");
+    let w, h, nodes;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function resize() {
+      w = c.width = innerWidth * devicePixelRatio;
+      h = c.height = innerHeight * devicePixelRatio;
+      c.style.width = innerWidth + "px";
+      c.style.height = innerHeight + "px";
+      const count = Math.min(58, Math.floor((innerWidth * innerHeight) / 22000));
+      nodes = Array.from({ length: count }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - .5) * .16 * devicePixelRatio,
+        vy: (Math.random() - .5) * .16 * devicePixelRatio,
+        r: (Math.random() * 1.2 + .5) * devicePixelRatio
+      }));
+    }
+    function tick() {
+      ctx.clearRect(0, 0, w, h);
+      const linkDist = 130 * devicePixelRatio;
+      for (const n of nodes) {
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < 0 || n.x > w) n.vx *= -1;
+        if (n.y < 0 || n.y > h) n.vy *= -1;
+      }
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const d = Math.hypot(dx, dy);
+          if (d < linkDist) {
+            ctx.strokeStyle = `rgba(125,211,252,${(1 - d / linkDist) * .16})`;
+            ctx.lineWidth = devicePixelRatio;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
+      for (const n of nodes) {
+        ctx.fillStyle = "rgba(94,234,212,.4)";
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      requestAnimationFrame(tick);
+    }
+    resize();
+    addEventListener("resize", resize);
+    if (!reduce) tick();
+  </script>
+</body>
+</html>
