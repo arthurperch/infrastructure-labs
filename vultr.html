@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arthur Perchatkin — Vultr · Infrastructure Production Engineer</title>
+  <meta name="description" content="A short note for Vultr: why my GPU validation and infrastructure automation work fits the Infrastructure Production Engineer role." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #050608;
+      --ink: #f2f4f8;
+      --mute: #a0a8b8;
+      --line: rgba(255,255,255,.12);
+      --cyan: #5eead4;
+      --blue: #7dd3fc;
+      --font: "IBM Plex Sans", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: var(--font);
+      color: var(--ink);
+      background: var(--bg);
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    .page {
+      position: relative; z-index: 1;
+      width: min(720px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 3rem 0 4rem;
+    }
+
+    .who {
+      font-family: var(--mono);
+      font-size: .78rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin: 0 0 .6rem;
+    }
+    h1 {
+      margin: 0 0 .5rem;
+      font-size: clamp(1.7rem, 4.5vw, 2.4rem);
+      line-height: 1.1;
+      letter-spacing: -.03em;
+      font-weight: 700;
+    }
+    .to {
+      margin: 0 0 2rem;
+      color: var(--mute);
+      font-size: 1rem;
+    }
+
+    .card {
+      padding: 1.6rem 1.7rem;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(8,10,14,.42);
+      backdrop-filter: blur(14px);
+      margin-bottom: 1.1rem;
+    }
+    .card h2 {
+      margin: 0 0 .7rem;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -.01em;
+    }
+    .card p {
+      margin: 0 0 .8rem;
+      color: #d0d6e4;
+      line-height: 1.6;
+      font-size: .98rem;
+    }
+    .card p:last-child { margin-bottom: 0; }
+    .card ul {
+      margin: 0 0 .8rem;
+      padding-left: 1.1rem;
+      color: #d0d6e4;
+      line-height: 1.6;
+      font-size: .96rem;
+    }
+    .card li { margin-bottom: .35rem; }
+
+    .link-row {
+      display: flex; flex-wrap: wrap; gap: .6rem;
+      margin-top: .9rem;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-family: var(--mono); font-size: .8rem; font-weight: 600;
+      padding: .55rem .95rem; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.34);
+      color: var(--ink);
+      transition: background .15s ease, border-color .15s ease;
+    }
+    .btn:hover { background: rgba(255,255,255,.08); border-color: rgba(125,211,252,.4); }
+    .btn.primary {
+      color: var(--cyan);
+      border-color: rgba(94,234,212,.35);
+      background: rgba(94,234,212,.07);
+    }
+    .btn.primary:hover { background: rgba(94,234,212,.14); border-color: rgba(94,234,212,.6); }
+
+    .sign {
+      margin-top: 2rem;
+      color: var(--mute);
+      font-size: .92rem;
+      line-height: 1.6;
+    }
+    .sign .name { color: var(--ink); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <p class="who">A note for Vultr</p>
+    <h1>Infrastructure Production Engineer</h1>
+    <p class="to">Arthur Perchatkin · prepared for Tessa Crimmel and the Vultr team</p>
+
+    <div class="card">
+      <h2>Why I'm a fit</h2>
+      <p>
+        The role asks for someone who validates GPU hardware before it reaches production, writes Python and
+        shell to automate it, and documents every command and outcome. That is exactly what I built, and it's
+        all public and running against real hardware.
+      </p>
+      <p>
+        I didn't do a course project. I built a validation pipeline and used it to gate a node into production,
+        and I can walk you through every design decision in it.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>The work, mapped to the role</h2>
+      <ul>
+        <li><strong>GPU validation</strong> — NVML health checks (temperature, power, PCIe link state, ECC, clocks) plus a CUDA burn test that stresses the card under load, because an idle card hides defects.</li>
+        <li><strong>Python + shell</strong> — six small Python programs and a bash verify script, each with a single job and a clear exit code.</li>
+        <li><strong>Ansible</strong> — a playbook that orchestrates the whole flow: validate, burn, network check, combine, submit.</li>
+        <li><strong>Data-center networking</strong> — DHCP, IPv6, and ICMP readiness checks before a node is allowed to onboard.</li>
+        <li><strong>Documentation</strong> — every command, observation, and outcome is captured in a runbook and an audit trail, not just in my head.</li>
+      </ul>
+      <div class="link-row">
+        <a class="btn primary" href="https://github.com/arthurperch/gpu-validation" target="_blank" rel="noopener">GPU validation repo</a>
+        <a class="btn" href="https://github.com/arthurperch/cloud" target="_blank" rel="noopener">Onboarding gate repo</a>
+        <a class="btn" href="https://arthurperch.github.io/infrastructure-labs/" target="_blank" rel="noopener">Full labs index</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>A quick look</h2>
+      <p>
+        A short walkthrough of the pipeline, on video, is coming here. Until then, the repositories above have
+        the code, a written walkthrough, and end-to-end verify scripts.
+      </p>
+      <div class="link-row">
+        <span class="btn" style="opacity:.6; cursor:default;">▶ walkthrough video coming soon</span>
+      </div>
+    </div>
+
+    <div class="sign">
+      <span class="name">Arthur Perchatkin</span><br />
+      AWS Solutions Architect Associate · AWS CloudOps Engineer Associate<br />
+      github.com/arthurperch
+    </div>
+  </div>
+</body>
+</html>

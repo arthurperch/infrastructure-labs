@@ -235,6 +235,34 @@
       transform: scale(1.02);
     }
 
+    .vid-slot {
+      margin-top: .8rem;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+    .vid-soon {
+      font-family: var(--mono); font-size: .68rem;
+      color: var(--mute);
+      border: 1px dashed rgba(255,255,255,.18);
+      border-radius: 8px;
+      padding: .34rem .6rem;
+    }
+    .vid-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      font-family: var(--mono); font-size: .72rem; font-weight: 600;
+      color: var(--cyan);
+      border: 1px solid rgba(94,234,212,.35);
+      border-radius: 8px;
+      padding: .38rem .7rem;
+      background: rgba(94,234,212,.07);
+      transition: background .15s ease, border-color .15s ease;
+      white-space: nowrap;
+    }
+    .vid-btn:hover { background: rgba(94,234,212,.14); border-color: rgba(94,234,212,.6); }
+
     footer {
       margin-top: 2rem;
       padding-top: 1rem;
@@ -304,53 +332,65 @@
         title: "GPU Validation Fleet",
         blurb: "NVML health checks, CUDA burn tests, network validation, and Ansible orchestration for bare-metal GPU nodes — with report submission to the onboarding gate.",
         tags: ["NVML", "CUDA", "Ansible", "Python", "GPU"],
-        url: "https://github.com/arthurperch/gpu-validation"
+        url: "https://github.com/arthurperch/gpu-validation",
+        video: ""
       },
       {
         title: "GPU Onboarding Gate",
         blurb: "Serverless gate — Lambda + API Gateway + DynamoDB — that ingests validator reports and decides PROVISION, HOLD, or RMA per node.",
         tags: ["Lambda", "API Gateway", "DynamoDB", "Terraform", "Serverless"],
-        url: "https://github.com/arthurperch/cloud"
+        url: "https://github.com/arthurperch/cloud",
+        video: ""
       },
       {
         title: "Cloud Infrastructure Lab",
         blurb: "Terraform + LocalStack: S3, DynamoDB, Lambda, and IAM provisioned as code with verify scripts and a clean teardown.",
         tags: ["Terraform", "LocalStack", "AWS", "IaC", "S3", "DynamoDB"],
-        url: "https://github.com/arthurperch/cloud"
+        url: "https://github.com/arthurperch/cloud",
+        video: ""
       },
       {
         title: "AWS Security Auditor",
         blurb: "Python/boto3 automated compliance checks across IAM, EC2, S3, and security groups with structured report output.",
         tags: ["Python", "boto3", "AWS", "IAM", "Security"],
-        url: "https://github.com/arthurperch/aws-security-auditor"
+        url: "https://github.com/arthurperch/aws-security-auditor",
+        video: ""
       },
       {
         title: "Gridwatch",
         blurb: "Network security monitoring — live connection snapshots, blocklist / port-scan / process detection rules, and alert sinks with a SQLite audit trail.",
         tags: ["Python", "psutil", "Security", "Monitoring", "SNS"],
-        url: "https://github.com/arthurperch/gridwatch"
+        url: "https://github.com/arthurperch/gridwatch",
+        video: ""
       },
       {
         title: "flask-mcp-server",
         blurb: "MCP server bridging AI assistants to Flask and AWS — automation and API integration from natural language.",
         tags: ["MCP", "Python", "Flask", "AWS", "Automation"],
-        url: "https://github.com/arthurperch/flask-mcp-server"
+        url: "https://github.com/arthurperch/flask-mcp-server",
+        video: ""
       }
     ];
 
-    document.getElementById("labs").innerHTML = labs.map(l => `
+    document.getElementById("labs").innerHTML = labs.map(l => {
+      const vid = l.video
+        ? `<a class="vid-btn" href="${l.video}" target="_blank" rel="noopener" aria-label="Watch the ${l.title} walkthrough">▶ Watch walkthrough</a>`
+        : `<span class="vid-soon">walkthrough recording soon</span>`;
+      return `
       <article class="lab">
         <div>
           <h2>${l.title}</h2>
           <p>${l.blurb}</p>
           <div class="tags">${l.tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>
+          <div class="vid-slot">${vid}</div>
         </div>
         <a class="gh-btn" href="${l.url}" target="_blank" rel="noopener" aria-label="Open ${l.title} on GitHub">
           <img src="${GH_ICON}" alt="" width="26" height="26" />
           GitHub
         </a>
       </article>
-    `).join("");
+    `;
+    }).join("");
 
     /* slow crossfade background */
     const s0 = document.getElementById("s0");
