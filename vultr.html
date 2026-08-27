@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Arthur Perchatkin — Vultr · Infrastructure Production Engineer</title>
-  <meta name="description" content="A short note for Vultr: why my GPU validation and infrastructure automation work fits the Infrastructure Production Engineer role." />
+  <meta name="description" content="GPU hardware validation and readiness for Vultr's global production environment. Why my work maps to the Infrastructure Production Engineer role." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -85,7 +85,8 @@
       line-height: 1.6;
       font-size: .96rem;
     }
-    .card li { margin-bottom: .35rem; }
+    .card li { margin-bottom: .45rem; }
+    .card li strong { color: var(--ink); }
 
     .link-row {
       display: flex; flex-wrap: wrap; gap: .6rem;
@@ -119,32 +120,45 @@
 </head>
 <body>
   <div class="page">
-    <p class="who">A note for Vultr</p>
+    <p class="who">Application · GPU hardware validation</p>
     <h1>Infrastructure Production Engineer</h1>
-    <p class="to">Arthur Perchatkin · prepared for Tessa Crimmel and the Vultr team</p>
+    <p class="to">Arthur Perchatkin · for Tessa Crimmel and the Vultr team</p>
 
     <div class="card">
-      <h2>Why I'm a fit</h2>
+      <h2>Why Vultr, specifically</h2>
       <p>
-        The role asks for someone who validates GPU hardware before it reaches production, writes Python and
-        shell to automate it, and documents every command and outcome. That is exactly what I built, and it's
-        all public and running against real hardware.
+        Vultr's whole bet is making high-performance infrastructure easy, affordable, and locally accessible
+        across 33 data centers and 185 countries, on a fleet of Cloud Compute, Cloud GPU, Bare Metal, and
+        Cloud Storage. I have followed the company since it was self-funded, and watching it grow into the
+        largest privately held cloud infrastructure company in the world is a big part of why this is the role
+        I actually want, not just one I qualify for.
       </p>
       <p>
-        I didn't do a course project. I built a validation pipeline and used it to gate a node into production,
-        and I can walk you through every design decision in it.
+        The job is about GPU hardware validation and readiness across a global production environment. I have
+        been building exactly that on my own hardware, and I can show you the working pipeline and every
+        decision behind it.
       </p>
     </div>
 
     <div class="card">
-      <h2>The work, mapped to the role</h2>
+      <h2>Your posting, line by line</h2>
       <ul>
-        <li><strong>GPU validation</strong> — NVML health checks (temperature, power, PCIe link state, ECC, clocks) plus a CUDA burn test that stresses the card under load, because an idle card hides defects.</li>
-        <li><strong>Python + shell</strong> — six small Python programs and a bash verify script, each with a single job and a clear exit code.</li>
-        <li><strong>Ansible</strong> — a playbook that orchestrates the whole flow: validate, burn, network check, combine, submit.</li>
-        <li><strong>Data-center networking</strong> — DHCP, IPv6, and ICMP readiness checks before a node is allowed to onboard.</li>
-        <li><strong>Documentation</strong> — every command, observation, and outcome is captured in a runbook and an audit trail, not just in my head.</li>
+        <li><strong>Automated diagnostic, validation, and remediation frameworks for production GPU hardware (NVIDIA and AMD).</strong> I built a validator that reads NVML telemetry directly, plus a CUDA burn test that stresses the card under load. It is written to treat ECC as a datacenter-only feature, so it degrades cleanly on consumer silicon and reports real counters on A100, H100, or MI300-class cards. NVIDIA and AMD, same pipeline.</li>
+        <li><strong>Python agents, services, APIs, and Ansible automation.</strong> Six small Python programs, one bash verify script, and an Ansible playbook that orchestrates the whole flow: validate, burn, network check, combine, submit.</li>
+        <li><strong>Analyze workload performance, utilization, thermals, and diagnostic output.</strong> My burn test samples temperature, clock, power, PCIe link state, and utilization every half second while the card is under load, then reasons about whether the card actually held up.</li>
+        <li><strong>Testing and verification for production onboarding and Return Material Authorization.</strong> A serverless gate ingests each report and returns PROVISION, HOLD, or RMA, with an audit trail in DynamoDB. On failure, it captures an evidence bundle: nvidia-smi dump, kernel log, structured report.</li>
+        <li><strong>Tooling that gates hardware deployment.</strong> That gate is the whole point. A node never declares itself healthy. It reports raw checks, and the control plane decides.</li>
+        <li><strong>Understanding of DHCP, IPv6, and ICMP.</strong> A node that cannot reach the network is dead weight. My network validator checks all three before onboarding is allowed.</li>
+        <li><strong>Document work performed, including commands executed, observations, and outcomes.</strong> Every repo has a written walkthrough and a verify script that proves the pipeline works end to end. The audit trail is append-only, not a memory.</li>
       </ul>
+    </div>
+
+    <div class="card">
+      <h2>The work</h2>
+      <p>
+        Two repositories, both public, both running against real hardware. The node side validates the GPU.
+        The control plane decides what to do with it. Together they are the full onboarding and RMA loop.
+      </p>
       <div class="link-row">
         <a class="btn primary" href="https://github.com/arthurperch/gpu-validation" target="_blank" rel="noopener">GPU validation repo</a>
         <a class="btn" href="https://github.com/arthurperch/cloud" target="_blank" rel="noopener">Onboarding gate repo</a>
