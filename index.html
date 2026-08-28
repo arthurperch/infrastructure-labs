@@ -119,6 +119,16 @@
       letter-spacing: -.03em;
       font-weight: 700;
     }
+    .caret {
+      display: inline-block;
+      width: 3px;
+      height: 1em;
+      margin-left: 4px;
+      vertical-align: -0.12em;
+      background: var(--cyan);
+      animation: blink 1s steps(2, start) infinite;
+    }
+    @keyframes blink { to { visibility: hidden; } }
     .hero h1 em {
       font-style: normal;
       background: linear-gradient(90deg, var(--cyan), var(--blue));
@@ -263,6 +273,55 @@
     }
     .vid-btn:hover { background: rgba(94,234,212,.14); border-color: rgba(94,234,212,.6); }
 
+    .video-frame {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      width: 100%;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(800px 400px at 50% 20%, rgba(125,211,252,.06), transparent 60%),
+        linear-gradient(180deg, rgba(10,13,19,.72), rgba(4,5,7,.85));
+      backdrop-filter: blur(14px);
+      box-shadow: 0 24px 70px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .video-frame-inner {
+      text-align: center;
+      padding: 2rem;
+      animation: rise .6s ease both;
+    }
+    .play-mark {
+      width: 68px;
+      height: 68px;
+      margin: 0 auto 1rem;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(0,0,0,.45);
+      color: var(--cyan);
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-left: 5px;
+    }
+    .video-title {
+      margin: 0 0 .4rem;
+      color: var(--ink);
+      font-weight: 600;
+      font-size: 1.15rem;
+    }
+    .video-sub {
+      margin: 0;
+      color: var(--mute);
+      font-family: var(--mono);
+      font-size: .78rem;
+    }
+
     footer {
       margin-top: 2rem;
       padding-top: 1rem;
@@ -298,13 +357,22 @@
 
     <header class="hero">
       <p class="who">Arthur Perchatkin · Cloud Systems Administrator</p>
-      <h1>Infrastructure Production Labs</h1>
+      <h1><span id="typed"></span><span class="caret" aria-hidden="true"></span></h1>
       <p class="sub">
         Hands-on labs proving the infrastructure production workflow — validating GPU hardware with NVML and burn tests,
         gating nodes through a serverless control plane, and provisioning it all with Terraform.
         Each card opens the GitHub repo with the write-up, code, and verify scripts.
       </p>
     </header>
+
+    <div class="section-label">Walkthrough</div>
+    <div class="video-frame" id="video-frame">
+      <div class="video-frame-inner">
+        <div class="play-mark" aria-hidden="true">▶</div>
+        <p class="video-title">GPU Validation Pipeline — full walkthrough</p>
+        <p class="video-sub">2–3 minute screen recording, coming soon</p>
+      </div>
+    </div>
 
     <div class="section-label">Labs</div>
     <div class="labs" id="labs"></div>
@@ -377,6 +445,19 @@
       </article>
     `;
     }).join("");
+
+    /* type out the headline on load */
+    (function () {
+      const el = document.getElementById("typed");
+      const text = "Infrastructure Production Labs";
+      const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduce || !el) { if (el) el.textContent = text; return; }
+      let i = 0;
+      const t = setInterval(() => {
+        el.textContent = text.slice(0, ++i);
+        if (i >= text.length) clearInterval(t);
+      }, 42);
+    })();
 
     /* slow crossfade background */
     const s0 = document.getElementById("s0");
