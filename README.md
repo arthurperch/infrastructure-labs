@@ -14,11 +14,10 @@ Each item links to a dedicated GitHub repo with setup detail, runbooks, and proo
 
 | # | Lab | What it shows | Repo |
 |---|---|---|---|
-| 01 | **GPU Validation Fleet** | NVML health checks, CUDA burn testing, network validation, Ansible orchestration | [gpu-validation](https://github.com/arthurperch/gpu-validation) |
-| 02 | **GPU Onboarding Gate** | Serverless gate — Lambda + API Gateway + DynamoDB — deciding PROVISION / HOLD / RMA, plus Terraform + LocalStack IaC | [gpu-onboarding-gate](https://github.com/arthurperch/gpu-onboarding-gate) |
-| 03 | **AWS Security Auditor** | boto3 IAM / EC2 / S3 / SG compliance checks | [aws-security-auditor](https://github.com/arthurperch/aws-security-auditor) |
-| 04 | **Gridwatch** | Network security monitoring — connection snapshots + detection rules + alert sinks | [gridwatch](https://github.com/arthurperch/gridwatch) |
-| 05 | **flask-mcp-server** | AI ↔ Flask ↔ AWS automation via MCP | [flask-mcp-server](https://github.com/arthurperch/flask-mcp-server) |
+| 01 | **GPU Validation Pipeline** | One pipeline, two repos: NVML health checks, CUDA burn, and network validation on the node side, feeding a serverless gate (Lambda + API Gateway + DynamoDB) that decides PROVISION / HOLD / RMA | [node side](https://github.com/arthurperch/gpu-validation) + [control plane](https://github.com/arthurperch/gpu-onboarding-gate) |
+| 02 | **AWS Security Auditor** | boto3 IAM / EC2 / S3 / SG compliance checks | [aws-security-auditor](https://github.com/arthurperch/aws-security-auditor) |
+| 03 | **Gridwatch** | Network security monitoring — connection snapshots + detection rules + alert sinks | [gridwatch](https://github.com/arthurperch/gridwatch) |
+| 04 | **flask-mcp-server** | AI ↔ Flask ↔ AWS automation via MCP | [flask-mcp-server](https://github.com/arthurperch/flask-mcp-server) |
 
 ---
 

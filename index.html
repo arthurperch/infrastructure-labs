@@ -329,17 +329,10 @@
 
     const labs = [
       {
-        title: "GPU Validation Fleet",
-        blurb: "NVML health checks, CUDA burn tests, network validation, and Ansible orchestration for bare-metal GPU nodes — with report submission to the onboarding gate.",
-        tags: ["NVML", "CUDA", "Ansible", "Python", "GPU"],
+        title: "GPU Validation Pipeline",
+        blurb: "End-to-end GPU onboarding: NVML health checks, CUDA burn tests, and network validation on the node side, feeding a serverless gate (Lambda + API Gateway + DynamoDB) that decides PROVISION, HOLD, or RMA. Two halves, one pipeline.",
+        tags: ["NVML", "CUDA", "Ansible", "Lambda", "DynamoDB", "Terraform"],
         url: "https://github.com/arthurperch/gpu-validation",
-        video: ""
-      },
-      {
-        title: "GPU Onboarding Gate",
-        blurb: "Serverless gate — Lambda + API Gateway + DynamoDB — that ingests validator reports and decides PROVISION, HOLD, or RMA per node. Includes the Terraform + LocalStack IaC foundation: S3, DynamoDB, Lambda, IAM.",
-        tags: ["Lambda", "API Gateway", "DynamoDB", "Terraform", "LocalStack", "Serverless"],
-        url: "https://github.com/arthurperch/gpu-onboarding-gate",
         video: ""
       },
       {
