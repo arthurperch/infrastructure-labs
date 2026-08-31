@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Infrastructure Production Labs — Arthur Perchatkin</title>
-  <meta name="description" content="GPU validation, serverless gating, and Terraform cloud infrastructure labs — built to prove production automation skills." />
+  <meta name="description" content="Labs I built to learn production infrastructure: GPU checks, a serverless gate, Terraform, and a few AWS tools." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -359,9 +359,9 @@
       <p class="who">Arthur Perchatkin · Cloud Systems Administrator</p>
       <h1><span id="typed"></span><span class="caret" aria-hidden="true"></span></h1>
       <p class="sub">
-        Hands-on labs proving the infrastructure production workflow — validating GPU hardware with NVML and burn tests,
-        gating nodes through a serverless control plane, and provisioning it all with Terraform.
-        Each card opens the GitHub repo with the write-up, code, and verify scripts.
+        Labs I built to learn how production infrastructure actually works.
+        A GPU check on a real RTX 3070, a gate that decides whether a node is good to go,
+        and a few AWS tools. Each card opens the GitHub repo.
       </p>
     </header>
 
@@ -378,7 +378,7 @@
     <div class="labs" id="labs"></div>
 
     <footer>
-      Arthur Perchatkin · Infrastructure Production Labs · GPU validation, serverless gating, Terraform, and AWS automation.
+      Arthur Perchatkin. Labs only. No production secrets.
     </footer>
   </div>
 
@@ -398,28 +398,28 @@
     const labs = [
       {
         title: "GPU Validation Pipeline",
-        blurb: "End-to-end GPU onboarding: NVML health checks, CUDA burn tests, and network validation on the node side, feeding a serverless gate (Lambda + API Gateway + DynamoDB) that decides PROVISION, HOLD, or RMA. Two halves, one pipeline.",
+        blurb: "Checks a GPU before it goes into a fleet. The node reads temperature, power, PCIe, and runs a burn test. A separate gate (Lambda + DynamoDB) then says PROVISION, HOLD, or RMA. The node reports. The gate decides.",
         tags: ["NVML", "CUDA", "Ansible", "Lambda", "DynamoDB", "Terraform"],
         url: "https://github.com/arthurperch/gpu-validation",
         video: ""
       },
       {
         title: "AWS Security Auditor",
-        blurb: "Python/boto3 automated compliance checks across IAM, EC2, S3, and security groups with structured report output.",
+        blurb: "A Python script that walks IAM, EC2, S3, and security groups and writes a report of what's open or misconfigured.",
         tags: ["Python", "boto3", "AWS", "IAM", "Security"],
         url: "https://github.com/arthurperch/aws-security-auditor",
         video: ""
       },
       {
         title: "Gridwatch",
-        blurb: "Network security monitoring — live connection snapshots, blocklist / port-scan / process detection rules, and alert sinks with a SQLite audit trail.",
+        blurb: "Looks at live network connections on a machine. Flags blocked IPs, port scans, and unknown processes, then writes them to a SQLite log.",
         tags: ["Python", "psutil", "Security", "Monitoring", "SNS"],
         url: "https://github.com/arthurperch/gridwatch",
         video: ""
       },
       {
         title: "flask-mcp-server",
-        blurb: "MCP server bridging AI assistants to Flask and AWS — automation and API integration from natural language.",
+        blurb: "Lets an AI assistant start and stop a Flask app and ask a few AWS questions. A learning project, not a product.",
         tags: ["MCP", "Python", "Flask", "AWS", "Automation"],
         url: "https://github.com/arthurperch/flask-mcp-server",
         video: ""
